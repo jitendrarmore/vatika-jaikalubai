@@ -27,6 +27,7 @@ export interface Donation {
   status: 'scheduled' | 'planted' | 'growing' | 'thriving';
   location?: { lat: number; lng: number; address: string };
   cost: number;
+  maintainerEmail?: string;
   createdAt: Timestamp;
 }
 
@@ -64,6 +65,22 @@ export async function updateDonationStatus(
   await updateDoc(doc(getDbInstance(), 'donations', donationId), { status });
 }
 
+export async function getAllDonations(): Promise<Donation[]> {
+  const q = query(collection(getDbInstance(), 'donations'), orderBy('createdAt', 'desc'));
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Donation));
+}
+
+export async function assignMaintainer(donationId: string, maintainerEmail: string) {
+  await updateDoc(doc(getDbInstance(), 'donations', donationId), { maintainerEmail });
+}
+
+export async function getDonationsByMaintainer(maintainerEmail: string): Promise<Donation[]> {
+  const q = query(collection(getDbInstance(), 'donations'), where('maintainerEmail', '==', maintainerEmail), orderBy('createdAt', 'desc'));
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Donation));
+}
+
 export interface TreeProgress {
   id?: string;
   donationId: string;
@@ -71,6 +88,9 @@ export interface TreeProgress {
   status: string;
   note: string;
   imageUrl?: string;
+  videoUrl?: string;
+  actionType?: 'purchased' | 'planted' | 'tagged' | 'watered' | 'general';
+  geoLocation?: { lat: number; lng: number };
 }
 
 export async function getTreeProgress(donationId: string): Promise<TreeProgress[]> {

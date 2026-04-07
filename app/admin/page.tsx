@@ -4,7 +4,9 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import { mockPlants } from '@/lib/mockData';
-import { Plus, Edit2, Trash2, RefreshCw, Settings, Users, TreePine, Package } from 'lucide-react';
+import { getAllDonations, assignMaintainer, updateDonationStatus, Donation } from '@/lib/firebase/donations';
+import { getAllUsers, getMaintainerUsers, updateUserRole, UserProfile } from '@/lib/firebase/users';
+import { Plus, Edit2, Trash2, RefreshCw, Settings, Users, TreePine, Package, UserCheck } from 'lucide-react';
 import styles from './page.module.css';
 
 type Tab = 'plants' | 'donations' | 'users';
@@ -17,10 +19,20 @@ export default function AdminPage() {
   const [showAddPlant, setShowAddPlant] = useState(false);
   const [newPlant, setNewPlant] = useState({ name: '', marathiName: '', cost: 500, description: '', growthTimeline: '', category: 'Sacred' });
 
+  const [donations, setDonations] = useState<Donation[]>([]);
+  const [usersList, setUsersList] = useState<UserProfile[]>([]);
+  const [maintainers, setMaintainers] = useState<UserProfile[]>([]);
+
   useEffect(() => {
     if (!loading) {
       if (!user) router.push('/login');
       else if (!isAdmin) router.push('/dashboard');
+      else {
+        // Load data
+        getAllDonations().then(setDonations);
+        getAllUsers().then(setUsersList);
+        getMaintainerUsers().then(setMaintainers);
+      }
     }
   }, [user, loading, isAdmin, router]);
 
@@ -32,11 +44,7 @@ export default function AdminPage() {
 
   if (!user || !isAdmin) return null;
 
-  const mockDonations = [
-    { id: '1', trackingId: 'VJK8X2KQ4R', userName: 'Demo User', plantName: 'Peepal Tree', treeName: 'Shivaji', status: 'growing', date: '2024-01-15', cost: 500 },
-    { id: '2', trackingId: 'VJKAB34XYZ', userName: 'Priya Deshmukh', plantName: 'Neem Tree', treeName: 'Aai Chi Smruti', status: 'planted', date: '2024-02-10', cost: 300 },
-    { id: '3', trackingId: 'VJKCD78PQR', userName: 'Ramesh Patil', plantName: 'Mango Tree', treeName: 'Aamrapali', status: 'scheduled', date: '2024-03-05', cost: 700 },
-  ];
+  if (!user || !isAdmin) return null;
 
   const statusBadge = (s: string) => {
     const colors: Record<string, string> = {
@@ -71,9 +79,9 @@ export default function AdminPage() {
           {/* Quick stats */}
           <div className={styles.quickStats}>
             <div className={styles.qs}><TreePine size={18} /><div><strong>{plants.length}</strong><span>Plant Types</span></div></div>
-            <div className={styles.qs}><Package size={18} /><div><strong>{mockDonations.length}</strong><span>Donations</span></div></div>
-            <div className={styles.qs}><Users size={18} /><div><strong>24</strong><span>Users</span></div></div>
-            <div className={styles.qs}><RefreshCw size={18} /><div><strong>3</strong><span>In Progress</span></div></div>
+            <div className={styles.qs}><Package size={18} /><div><strong>{donations.length}</strong><span>Donations</span></div></div>
+            <div className={styles.qs}><Users size={18} /><div><strong>{usersList.length}</strong><span>Users</span></div></div>
+            <div className={styles.qs}><RefreshCw size={18} /><div><strong>{donations.filter(d => d.status !== 'thriving').length}</strong><span>In Progress</span></div></div>
           </div>
         </div>
       </div>
@@ -229,28 +237,50 @@ export default function AdminPage() {
                     <th>Tracking ID</th>
                     <th>Donor</th>
                     <th>Tree</th>
-                    <th>Plant</th>
                     <th>Date</th>
                     <th>Status</th>
-                    <th>Amount</th>
-                    <th>Update</th>
+                    <th>Maintainer</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {mockDonations.map((d) => (
+                  {donations.map((d) => (
                     <tr key={d.id}>
                       <td><code style={{ fontSize: '0.8rem' }}>{d.trackingId}</code></td>
                       <td>{d.userName}</td>
-                      <td><strong>{d.treeName}</strong></td>
-                      <td>{d.plantName}</td>
+                      <td><strong>{d.treeName}</strong><br/><span style={{fontSize:'0.8rem', color:'#666'}}>{d.plantName}</span></td>
                       <td style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                        {new Date(d.date).toLocaleDateString('en-IN')}
+                        {d.createdAt?.toDate().toLocaleDateString('en-IN') || 'N/A'}
                       </td>
                       <td>{statusBadge(d.status)}</td>
-                      <td><strong>₹{d.cost}</strong></td>
                       <td>
-                        <select className="form-input" style={{ padding: '0.3rem 0.5rem', fontSize: '0.8rem' }}
-                          defaultValue={d.status}>
+                        <select
+                          className="form-input" style={{ padding: '0.3rem', fontSize: '0.8rem', maxWidth: '150px' }}
+                          value={d.maintainerEmail || ''}
+                          onChange={async (e) => {
+                            if (d.id) {
+                              await assignMaintainer(d.id, e.target.value);
+                              setDonations(prev => prev.map(old => old.id === d.id ? { ...old, maintainerEmail: e.target.value } : old));
+                            }
+                          }}
+                        >
+                          <option value="">-- Unassigned --</option>
+                          {maintainers.map(m => (
+                            <option key={m.uid} value={m.email}>{m.name || m.email}</option>
+                          ))}
+                        </select>
+                      </td>
+                      <td>
+                        <select className="form-input" style={{ padding: '0.3rem', fontSize: '0.8rem' }}
+                          value={d.status}
+                          onChange={async (e) => {
+                            if (d.id) {
+                              const newStatus = e.target.value as Donation['status'];
+                              await updateDonationStatus(d.id, newStatus);
+                              setDonations(prev => prev.map(old => old.id === d.id ? { ...old, status: newStatus } : old));
+                            }
+                          }}
+                        >
                           <option value="scheduled">Scheduled</option>
                           <option value="planted">Planted</option>
                           <option value="growing">Growing</option>
@@ -277,33 +307,39 @@ export default function AdminPage() {
                   <tr>
                     <th>User</th>
                     <th>Email</th>
-                    <th>Trees Donated</th>
                     <th>Joined</th>
                     <th>Role</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td><strong>Admin User</strong></td>
-                    <td>{user.email}</td>
-                    <td>0</td>
-                    <td>—</td>
-                    <td><span className="badge badge-gold">Admin</span></td>
-                  </tr>
-                  <tr>
-                    <td><strong>Priya Deshmukh</strong></td>
-                    <td>priya@example.com</td>
-                    <td>2</td>
-                    <td>Jan 2024</td>
-                    <td><span className="badge badge-forest">User</span></td>
-                  </tr>
-                  <tr>
-                    <td><strong>Ramesh Patil</strong></td>
-                    <td>ramesh@example.com</td>
-                    <td>1</td>
-                    <td>Feb 2024</td>
-                    <td><span className="badge badge-forest">User</span></td>
-                  </tr>
+                  {usersList.map((u) => (
+                    <tr key={u.uid}>
+                      <td><strong>{u.name}</strong></td>
+                      <td>{u.email}</td>
+                      <td style={{ fontSize: '0.85rem', color: '#666' }}>
+                        {u.createdAt?.toDate().toLocaleDateString('en-IN') || 'N/A'}
+                      </td>
+                      <td>
+                        <select
+                          className="form-input"
+                          style={{ padding: '0.3rem', fontSize: '0.8rem' }}
+                          value={u.role}
+                          onChange={async (e) => {
+                            const newRole = e.target.value as any;
+                            await updateUserRole(u.uid, newRole);
+                            setUsersList(prev => prev.map(o => o.uid === u.uid ? { ...o, role: newRole } : o));
+                            if (newRole === 'maintainer' || newRole === 'admin') {
+                              getMaintainerUsers().then(setMaintainers);
+                            }
+                          }}
+                        >
+                          <option value="user">User</option>
+                          <option value="maintainer">Maintainer</option>
+                          <option value="admin">Admin</option>
+                        </select>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>

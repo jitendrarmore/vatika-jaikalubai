@@ -13,7 +13,7 @@ export default function Navbar() {
   const [profileOpen, setProfileOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
-  const { user, signOut, isAdmin } = useAuth();
+  const { user, signOut, isAdmin, isMaintainer } = useAuth();
   const isHome = pathname === '/';
 
   useEffect(() => {
@@ -89,6 +89,11 @@ export default function Navbar() {
                   <Link href="/dashboard" className={styles.dropdownItem} onClick={() => setProfileOpen(false)}>
                     <LayoutDashboard size={16} /> My Dashboard
                   </Link>
+                  {isMaintainer && (
+                    <Link href="/maintainer" className={styles.dropdownItem} onClick={() => setProfileOpen(false)}>
+                      <Leaf size={16} /> Maintainer Portal
+                    </Link>
+                  )}
                   {isAdmin && (
                     <Link href="/admin" className={styles.dropdownItem} onClick={() => setProfileOpen(false)}>
                       <Shield size={16} /> Admin Panel
@@ -131,6 +136,9 @@ export default function Navbar() {
             {user ? (
               <>
                 <Link href="/dashboard" className="btn btn-secondary btn-sm" onClick={() => setMenuOpen(false)}>Dashboard</Link>
+                {isMaintainer && (
+                  <Link href="/maintainer" className="btn btn-forest btn-sm" onClick={() => setMenuOpen(false)}>Maintainer Portal</Link>
+                )}
                 <button onClick={handleSignOut} className="btn btn-ghost btn-sm">Sign Out</button>
               </>
             ) : (

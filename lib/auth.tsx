@@ -8,6 +8,7 @@ import {
   ReactNode,
 } from 'react';
 import { getAuthInstance } from '@/lib/firebase/client';
+import { syncUserToFirestore } from '@/lib/firebase/users';
 import {
   signInWithPopup,
   GoogleAuthProvider,
@@ -29,21 +30,36 @@ interface AuthContextType {
   signUpWithEmail: (email: string, password: string, name: string) => Promise<void>;
   signOut: () => Promise<void>;
   isAdmin: boolean;
+  isMaintainer: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-const ADMIN_EMAILS = ['admin@vatika.in', 'jitendrarmore@gmail.com'];
+const ADMIN_EMAILS = ['admin@vatika.in', 'jitendrarmore@gmail.com', 'jeetu.more@gmail.com'];
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isMaintainer, setIsMaintainer] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(getAuthInstance(), (u) => {
-      setUser(u);
-      setIsAdmin(u ? ADMIN_EMAILS.includes(u.email || '') : false);
+    const unsubscribe = onAuthStateChanged(getAuthInstance(), async (u) => {
+      if (u) {
+        try {
+          const profile = await syncUserToFirestore(u.uid, u.email || '', u.displayName || 'User', u.photoURL || undefined);
+          setUser(u);
+          setIsAdmin(profile.role === 'admin' || ADMIN_EMAILS.includes(u.email || ''));
+          setIsMaintainer(profile.role === 'maintainer' || profile.role === 'admin' || ADMIN_EMAILS.includes(u.email || ''));
+        } catch (e) {
+          console.error("Failed to sync user", e);
+          setUser(u);
+        }
+      } else {
+        setUser(null);
+        setIsAdmin(false);
+        setIsMaintainer(false);
+      }
       setLoading(false);
     });
     return unsubscribe;
@@ -74,7 +90,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, signInWithGoogle, signInWithFacebook, signInWithEmail, signUpWithEmail, signOut, isAdmin }}
+      value={{ user, loading, signInWithGoogle, signInWithFacebook, signInWithEmail, signUpWithEmail, signOut, isAdmin, isMaintainer }}
     >
       {children}
     </AuthContext.Provider>

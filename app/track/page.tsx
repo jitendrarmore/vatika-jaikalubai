@@ -221,10 +221,27 @@ function TrackContent() {
                       </div>
                       <div className={styles.progressDot2} />
                       <div className={styles.progressContent}>
-                        <div className={styles.progressStatus}>{entry.status}</div>
+                        <div className={styles.progressStatus}>
+                          {entry.actionType === 'purchased' && '🛒 '}
+                          {entry.actionType === 'planted' && '🌱 '}
+                          {entry.actionType === 'tagged' && '🏷️ '}
+                          {entry.actionType === 'watered' && '💧 '}
+                          {entry.actionType === 'general' && '📝 '}
+                          {entry.actionType ? entry.actionType.charAt(0).toUpperCase() + entry.actionType.slice(1) : entry.status}
+                        </div>
                         <div className={styles.progressNote}>{entry.note}</div>
+                        
+                        {entry.geoLocation && (
+                          <div style={{ fontSize: '0.75rem', color: 'var(--forest-600)', background: 'var(--forest-50)', padding: '0.4rem', borderRadius: '4px', display: 'inline-flex', alignItems: 'center', gap: '4px', marginTop: '0.5rem', marginBottom: '0.5rem' }}>
+                            <MapPin size={12} /> Geo Tag: {entry.geoLocation.lat.toFixed(6)}, {entry.geoLocation.lng.toFixed(6)}
+                          </div>
+                        )}
+
                         {entry.imageUrl && (
                           <img src={entry.imageUrl} alt="Tree progress" className={styles.progressImage} />
+                        )}
+                        {entry.videoUrl && (
+                          <video src={entry.videoUrl} controls className={styles.progressImage} style={{ outline: 'none' }} />
                         )}
                       </div>
                     </div>
