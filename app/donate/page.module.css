@@ -1,0 +1,605 @@
+.page { min-height: 100vh; background: var(--cream); }
+
+/* Header */
+.header {
+  background: var(--grad-hero);
+  padding: 6rem 0 3rem;
+  text-align: center;
+}
+
+.pageTitle {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 5vw, 3rem);
+  color: white;
+  margin-bottom: 0.5rem;
+}
+
+.pageSubtitle {
+  font-size: 1.1rem;
+  color: rgba(255,255,255,0.8);
+  margin-bottom: 2rem;
+}
+
+/* Progress */
+.progress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-top: 1.5rem;
+}
+
+.progressItem {
+  display: flex;
+  align-items: center;
+}
+
+.progressDot {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  border: 2px solid rgba(255,255,255,0.4);
+  color: rgba(255,255,255,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  transition: all 0.3s ease;
+}
+
+.progressDot.active {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #1B1B1B;
+  transform: scale(1.1);
+}
+
+.progressDot.done {
+  background: var(--sage);
+  border-color: var(--sage);
+  color: white;
+}
+
+.progressLine {
+  width: 60px;
+  height: 2px;
+  background: rgba(255,255,255,0.2);
+  transition: background 0.3s;
+}
+
+.progressLine.lineDone { background: var(--sage); }
+
+/* Wizard container */
+.wizardContainer {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 2.5rem 0 4rem;
+}
+
+.step { animation: fadeIn 0.4s ease; }
+
+.stepHeader {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.stepTitle {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.stepDesc {
+  font-size: 1rem;
+  color: var(--text-secondary);
+}
+
+.stepActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #E5E7EB;
+}
+
+/* === STEP 1: OCCASIONS === */
+.occasionGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1rem;
+}
+
+.occasionCard {
+  background: var(--white);
+  border: 2px solid #E5E7EB;
+  border-radius: var(--radius-lg);
+  padding: 1.5rem 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.occasionCard:hover {
+  border-color: var(--forest);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-green);
+}
+
+.occasionCard.selected {
+  border-color: var(--forest);
+  background: rgba(45, 106, 79, 0.06);
+}
+
+.occasionIcon { font-size: 2.2rem; }
+.occasionLabel {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+.occasionDesc {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.3;
+}
+
+.selectedCheck {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  width: 22px;
+  height: 22px;
+  background: var(--forest);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* === STEP 2: PLANTS === */
+.plantsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.plantCard {
+  background: var(--white);
+  border: 2px solid #E5E7EB;
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 1.2rem;
+  text-align: left;
+  width: 100%;
+}
+
+.plantCard:hover, .plantCard.selected {
+  border-color: var(--forest);
+  box-shadow: var(--shadow-green);
+}
+
+.plantCard.selected { background: rgba(45, 106, 79, 0.04); }
+
+.plantEmoji { font-size: 3rem; flex-shrink: 0; }
+.plantInfo { flex: 1; }
+
+.plantNameRow {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 0.4rem;
+}
+
+.plantName {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.plantMarathi {
+  font-size: 0.85rem;
+  color: var(--earth);
+  font-weight: 500;
+}
+
+.plantDesc {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 0.75rem;
+}
+
+.plantBenefits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
+}
+
+.plantMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.plantTimeline {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.plantCost {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--forest);
+}
+
+/* === STEP 3: DATE === */
+.dateSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.dateCard {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 2.5rem;
+  text-align: center;
+  width: 100%;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.dateCard h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  color: var(--text-primary);
+}
+
+.dateInput {
+  width: 100%;
+  text-align: center;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.orDivider {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+}
+
+.immediateBtn {
+  background: var(--white);
+  border: 2px solid #E5E7EB;
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  width: 100%;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--forest);
+}
+
+.immediateBtn span {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.immediateBtn:hover, .immediateBtn.selected {
+  border-color: var(--forest);
+  background: rgba(45,106,79,0.05);
+  box-shadow: var(--shadow-green);
+}
+
+/* === STEP 4: NAMING === */
+.namingForm { max-width: 560px; margin: 0 auto; }
+
+.namingPreview {
+  margin-top: 2rem;
+}
+
+.previewLabel {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.75rem;
+}
+
+.previewCard {
+  background: var(--grad-hero);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  text-align: center;
+  color: white;
+}
+
+.previewTree { font-size: 3rem; margin-bottom: 0.5rem; }
+.previewName {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+.previewDedication {
+  font-style: italic;
+  font-size: 0.9rem;
+  opacity: 0.85;
+  margin-bottom: 0.75rem;
+}
+.previewPlant {
+  font-size: 0.8rem;
+  opacity: 0.65;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* === STEP 5: PAYMENT === */
+.summaryCard {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  box-shadow: var(--shadow-md);
+  margin-bottom: 1.5rem;
+}
+
+.summaryTitle {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  color: var(--text-primary);
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #F0F0F0;
+}
+
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0.6rem 0;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+.summaryValue {
+  color: var(--text-primary);
+  font-weight: 500;
+  text-align: right;
+  max-width: 60%;
+}
+
+.summaryDivider { height: 1px; background: #F0F0F0; margin: 1rem 0; }
+
+.summaryTotal {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary) !important;
+}
+
+.totalAmount {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--forest);
+}
+
+.paymentMethods {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-md);
+  margin-bottom: 1.5rem;
+}
+
+.paymentMethods h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.paymentGrid { margin-bottom: 1rem; }
+
+.paymentMethod {
+  background: rgba(45,106,79,0.06);
+  border: 2px solid var(--forest);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.5rem;
+  font-weight: 600;
+  color: var(--forest);
+  font-size: 0.95rem;
+}
+
+.secureNote {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.processingState {
+  text-align: center;
+  padding: 4rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.processingState h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  color: var(--text-primary);
+}
+
+.processingState p { color: var(--text-muted); }
+
+.processingSteps {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.processingStep {
+  font-size: 0.9rem;
+  color: var(--forest);
+  font-weight: 500;
+}
+
+/* === STEP 6: SUCCESS === */
+.successPage { padding: 1rem 0; }
+
+.successCard {
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  padding: 3rem;
+  text-align: center;
+  box-shadow: var(--shadow-xl);
+  animation: slideUp 0.6s ease;
+}
+
+.successIcon { font-size: 5rem; margin-bottom: 1rem; }
+
+.successBlessing {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  color: var(--forest);
+  margin-bottom: 1rem;
+  font-style: italic;
+}
+
+.successMessage {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  max-width: 480px;
+  margin: 0 auto 2rem;
+  line-height: 1.7;
+}
+
+.trackingBox {
+  background: var(--cream);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  margin: 0 auto 2rem;
+  max-width: 360px;
+}
+
+.trackingLabel {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.5rem;
+}
+
+.trackingId {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--forest);
+  letter-spacing: 0.15em;
+  margin-bottom: 1.5rem;
+}
+
+.qrCode {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.75rem;
+}
+
+.qrLabel {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.successDetails {
+  background: var(--cream);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  margin: 0 auto 2rem;
+  max-width: 480px;
+}
+
+.detailRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  font-size: 0.9rem;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  color: var(--text-secondary);
+}
+
+.detailRow:last-child { border-bottom: none; }
+.detailRow span:last-child { font-weight: 600; color: var(--text-primary); }
+
+.successActions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.successNote {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* spinner */
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid var(--mint);
+  border-top-color: var(--forest);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Responsive */
+@media (max-width: 700px) {
+  .occasionGrid { grid-template-columns: repeat(3, 1fr); }
+  .wizardContainer { padding: 1.5rem 0 3rem; }
+  .successCard { padding: 2rem 1.25rem; }
+}
+
+@media (max-width: 480px) {
+  .occasionGrid { grid-template-columns: repeat(2, 1fr); }
+  .plantCard { flex-direction: column; }
+  .stepActions { flex-direction: column-reverse; gap: 0.75rem; }
+  .stepActions .btn { width: 100%; justify-content: center; }
+}
