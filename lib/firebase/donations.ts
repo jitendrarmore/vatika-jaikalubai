@@ -43,11 +43,11 @@ export async function createDonation(data: Omit<Donation, 'id' | 'createdAt'>) {
 export async function getDonationsByUser(uid: string): Promise<Donation[]> {
   const q = query(
     collection(getDbInstance(), 'donations'),
-    where('uid', '==', uid),
-    orderBy('createdAt', 'desc')
+    where('uid', '==', uid)
   );
   const snapshot = await getDocs(q);
-  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Donation));
+  const data = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Donation));
+  return data.sort((a, b) => b.createdAt.toMillis() - a.createdAt.toMillis());
 }
 
 export async function getTreeByTrackingId(trackingId: string): Promise<Donation | null> {
@@ -76,9 +76,10 @@ export async function assignMaintainer(donationId: string, maintainerEmail: stri
 }
 
 export async function getDonationsByMaintainer(maintainerEmail: string): Promise<Donation[]> {
-  const q = query(collection(getDbInstance(), 'donations'), where('maintainerEmail', '==', maintainerEmail), orderBy('createdAt', 'desc'));
+  const q = query(collection(getDbInstance(), 'donations'), where('maintainerEmail', '==', maintainerEmail));
   const snapshot = await getDocs(q);
-  return snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Donation));
+  const data = snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Donation));
+  return data.sort((a, b) => b.createdAt.toMillis() - a.createdAt.toMillis());
 }
 
 export interface TreeProgress {
@@ -96,11 +97,11 @@ export interface TreeProgress {
 export async function getTreeProgress(donationId: string): Promise<TreeProgress[]> {
   const q = query(
     collection(getDbInstance(), 'treeProgress'),
-    where('donationId', '==', donationId),
-    orderBy('date', 'desc')
+    where('donationId', '==', donationId)
   );
   const snapshot = await getDocs(q);
-  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as TreeProgress));
+  const data = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as TreeProgress));
+  return data.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
 
 export async function addTreeProgress(data: Omit<TreeProgress, 'id'>) {
