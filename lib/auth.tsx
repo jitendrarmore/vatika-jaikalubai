@@ -12,7 +12,6 @@ import { syncUserToFirestore } from '@/lib/firebase/users';
 import {
   signInWithPopup,
   GoogleAuthProvider,
-  FacebookAuthProvider,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut as firebaseSignOut,
@@ -25,7 +24,6 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   signInWithGoogle: () => Promise<void>;
-  signInWithFacebook: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (email: string, password: string, name: string) => Promise<void>;
   signOut: () => Promise<void>;
@@ -54,6 +52,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } catch (e) {
           console.error("Failed to sync user", e);
           setUser(u);
+          setIsAdmin(ADMIN_EMAILS.includes(u.email || ''));
+          setIsMaintainer(ADMIN_EMAILS.includes(u.email || ''));
         }
       } else {
         setUser(null);
@@ -70,10 +70,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await signInWithPopup(getAuthInstance(), provider);
   };
 
-  const signInWithFacebook = async () => {
-    const provider = new FacebookAuthProvider();
-    await signInWithPopup(getAuthInstance(), provider);
-  };
 
   const signInWithEmail = async (email: string, password: string) => {
     await signInWithEmailAndPassword(getAuthInstance(), email, password);
@@ -90,7 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, signInWithGoogle, signInWithFacebook, signInWithEmail, signUpWithEmail, signOut, isAdmin, isMaintainer }}
+      value={{ user, loading, signInWithGoogle, signInWithEmail, signUpWithEmail, signOut, isAdmin, isMaintainer }}
     >
       {children}
     </AuthContext.Provider>
