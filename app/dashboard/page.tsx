@@ -82,11 +82,21 @@ export default function DashboardPage() {
 
           {/* Stats row */}
           <div className={styles.statsRow}>
-            <div className={styles.stat}>
+            <div 
+              className={styles.stat} 
+              style={{ cursor: 'pointer' }} 
+              onClick={() => document.getElementById('my-trees-list')?.scrollIntoView({ behavior: 'smooth' })}
+              title="Click to view all your donated trees"
+            >
               <span className={styles.statNum}>{totalTrees}</span>
               <span className={styles.statLabel}>Trees Donated</span>
             </div>
-            <div className={styles.stat}>
+            <div 
+              className={styles.stat} 
+              style={{ cursor: 'pointer' }}
+              onClick={() => document.getElementById('my-trees-list')?.scrollIntoView({ behavior: 'smooth' })}
+              title="Click to view your growing trees"
+            >
               <span className={styles.statNum}>{growingTrees}</span>
               <span className={styles.statLabel}>Growing Now</span>
             </div>
@@ -110,7 +120,7 @@ export default function DashboardPage() {
         </div>
 
         {donations.length === 0 ? (
-          <div className={styles.emptyState}>
+          <div className={styles.emptyState} id="my-trees-list">
             <div className={styles.emptyIcon}>🌱</div>
             <h3>No trees yet!</h3>
             <p>Start your green journey by donating your first tree.</p>
@@ -119,7 +129,7 @@ export default function DashboardPage() {
             </Link>
           </div>
         ) : (
-          <div className={styles.treeGrid}>
+          <div className={styles.treeGrid} id="my-trees-list">
             {donations.map((donation) => {
               const sc = statusConfig[donation.status];
               return (
