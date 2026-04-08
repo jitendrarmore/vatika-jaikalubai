@@ -135,8 +135,18 @@ export default function DashboardPage() {
                     <span>🌿 {donation.plantName}</span>
                     <span>🎉 {donation.occasion}</span>
                   </div>
-                  <div className={styles.treeCardId}>
-                    ID: <strong>{donation.trackingId}</strong>
+                  <div className={styles.treeCardId} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--forest-50)', padding: '0.5rem', borderRadius: '4px', marginTop: '0.5rem' }}>
+                    <span style={{ fontSize: '0.85rem' }}>ID: <strong style={{ letterSpacing: '1px' }}>{donation.trackingId}</strong></span>
+                    <button 
+                      onClick={() => {
+                        navigator.clipboard.writeText(donation.trackingId);
+                        alert('Tracking ID copied!');
+                      }}
+                      style={{ background: 'none', border: 'none', color: 'var(--forest-600)', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600 }}
+                      title="Copy Tracking ID"
+                    >
+                      Copy
+                    </button>
                   </div>
                   <div className={styles.treeCardDate}>
                     <Clock size={13} /> {new Date(donation.plantationDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
