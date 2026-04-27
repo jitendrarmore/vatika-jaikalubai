@@ -662,7 +662,7 @@ function DonateWizard() {
 
                 <div className={styles.successActions}>
                   <a
-                    href={`/track/${state.trackingId}`}
+                    href={`/track?id=${state.trackingId}`}
                     className="btn btn-forest btn-lg"
                     id="track-tree-btn"
                   >

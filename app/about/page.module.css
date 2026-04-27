@@ -1,0 +1,772 @@
+/* ── PAGE ── */
+.page {
+  min-height: 100vh;
+  background: var(--cream);
+}
+
+/* ── HERO ── */
+.hero {
+  background: var(--grad-hero);
+  padding: 8rem 0 5rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.heroGlow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 60% 40%, rgba(212,160,23,0.15) 0%, transparent 65%),
+              radial-gradient(ellipse at 30% 80%, rgba(82,183,136,0.12) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.heroPill {
+  display: inline-block;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: rgba(255,255,255,0.95);
+  border-radius: 999px;
+  padding: 0.4rem 1.2rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  margin-bottom: 1.5rem;
+  backdrop-filter: blur(8px);
+}
+
+.heroTitle {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.4rem, 6vw, 4rem);
+  color: white;
+  line-height: 1.15;
+  margin-bottom: 1.25rem;
+}
+
+.heroAccent {
+  color: var(--gold-light);
+}
+
+.heroDesc {
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  color: rgba(255,255,255,0.85);
+  max-width: 680px;
+  margin: 0 auto 3rem;
+  line-height: 1.75;
+}
+
+.heroStats {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 2.5rem;
+  backdrop-filter: blur(10px);
+}
+
+.heroStat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0 2rem;
+}
+
+.heroStatNum {
+  font-size: 2rem;
+}
+
+.heroStatLabel {
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.75);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.heroStatDivider {
+  width: 1px;
+  height: 40px;
+  background: rgba(255,255,255,0.25);
+}
+
+/* ── SHARED SECTION ── */
+.section {
+  padding: 5rem 0;
+}
+
+.sectionHeader {
+  text-align: center;
+  margin-bottom: 3.5rem;
+}
+
+.sectionTag {
+  display: inline-block;
+  background: rgba(45,106,79,0.1);
+  color: var(--forest);
+  border-radius: 999px;
+  padding: 0.35rem 1.1rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.sectionTitle {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+.sectionSubtitle {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  max-width: 640px;
+  margin: 0 auto;
+  line-height: 1.75;
+}
+
+/* ── ORIGIN SECTION ── */
+.originSection {
+  background: var(--white);
+}
+
+.twoCol {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 4rem;
+  align-items: start;
+}
+
+.originText .sectionTag { text-align: left; }
+
+.bodyText {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  line-height: 1.8;
+  margin-bottom: 1.25rem;
+}
+
+.bodyText strong { color: var(--text-primary); }
+
+.quoteBlock {
+  background: var(--cream);
+  border-left: 4px solid var(--gold);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  padding: 1.5rem 1.75rem;
+  margin-top: 2rem;
+  position: relative;
+}
+
+.quoteMarks {
+  font-family: Georgia, serif;
+  font-size: 4rem;
+  color: var(--gold);
+  line-height: 0;
+  position: absolute;
+  top: 1.5rem;
+  left: 1rem;
+  opacity: 0.3;
+}
+
+.quoteText {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.05rem;
+  color: var(--text-primary);
+  line-height: 1.7;
+  font-style: italic;
+  padding-left: 0.5rem;
+}
+
+.quoteAuthor {
+  display: block;
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--earth);
+  padding-left: 0.5rem;
+}
+
+/* Temple card */
+.templeCard {
+  background: var(--grad-hero);
+  border-radius: var(--radius-xl);
+  padding: 2.5rem;
+  text-align: center;
+  color: white;
+  position: sticky;
+  top: 6rem;
+  box-shadow: var(--shadow-green);
+}
+
+.templeEmoji {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.templeCard h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  color: white;
+  margin-bottom: 0.35rem;
+}
+
+.templeCard > p {
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 1.75rem;
+}
+
+.templeDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  text-align: left;
+}
+
+.templeDetail {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.85);
+  background: rgba(255,255,255,0.1);
+  border-radius: var(--radius-md);
+  padding: 0.65rem 0.85rem;
+}
+
+/* ── PARTNER SECTION ── */
+.partnerSection {
+  background: var(--cream);
+}
+
+.partnerGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 4rem;
+}
+
+.partnerCard {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 2rem 1.5rem;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.partnerCard:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-green);
+}
+
+.partnerIcon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.partnerCard h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  margin-bottom: 0.6rem;
+}
+
+.partnerCard p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* Certificates */
+.certsSection {
+  text-align: center;
+}
+
+.certsTitle {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+}
+
+.certsSubtitle {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  max-width: 600px;
+  margin: 0 auto 2.5rem;
+  line-height: 1.7;
+}
+
+.certsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.certCard {
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.certCard:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.certBadge {
+  background: var(--grad-hero);
+  color: white;
+  padding: 0.6rem 1.25rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.certImageWrap {
+  position: relative;
+  overflow: hidden;
+  background: #f8f8f8;
+  min-height: 380px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.certImage {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.certCard:hover .certImage {
+  transform: scale(1.02);
+}
+
+.certOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(27,67,50,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.certCard:hover .certOverlay {
+  opacity: 1;
+}
+
+.certViewBtn {
+  background: var(--gold);
+  color: var(--dark);
+  padding: 0.65rem 1.4rem;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: transform 0.2s;
+}
+
+.certViewBtn:hover {
+  transform: scale(1.05);
+}
+
+.certMeta {
+  padding: 1.25rem 1.5rem;
+  text-align: left;
+}
+
+.certMeta h4 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  margin-bottom: 0.35rem;
+}
+
+.certMeta p {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  margin-bottom: 0.5rem;
+}
+
+.certDate {
+  display: inline-block;
+  background: rgba(45,106,79,0.08);
+  color: var(--forest);
+  border-radius: 999px;
+  padding: 0.25rem 0.8rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+/* Registration highlights */
+.regHighlight {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.regItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.regIcon {
+  font-size: 1.75rem;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.regItem strong {
+  display: block;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.regItem p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ── WHY SECTION ── */
+.whySection {
+  background: var(--white);
+}
+
+.whyGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.whyCard {
+  background: var(--cream);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  border: 1px solid rgba(0,0,0,0.04);
+}
+
+.whyCard:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  background: var(--white);
+}
+
+.whyIcon {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.whyCard h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem;
+  color: var(--text-primary);
+  margin-bottom: 0.6rem;
+}
+
+.whyCard p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+/* ── TEAM SECTION ── */
+.teamSection {
+  background: var(--cream);
+}
+
+.leadershipBlock {
+  margin-bottom: 3.5rem;
+}
+
+.leadershipHeader {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.leadershipBadge {
+  background: rgba(45,106,79,0.1);
+  color: var(--forest);
+  border: 1px solid rgba(45,106,79,0.2);
+  border-radius: 999px;
+  padding: 0.35rem 1rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.leadershipBadgeGold {
+  background: rgba(212,160,23,0.1);
+  color: #926010;
+  border-color: rgba(212,160,23,0.25);
+}
+
+.leadershipHeader h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  color: var(--text-primary);
+}
+
+.leaderCards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.leaderCard {
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  padding: 2.5rem;
+  box-shadow: var(--shadow-md);
+  border: 1px solid rgba(45,106,79,0.08);
+  transition: transform 0.25s ease;
+}
+
+.leaderCard:hover {
+  transform: translateY(-3px);
+}
+
+.leaderAvatar {
+  width: 60px;
+  height: 60px;
+  background: var(--grad-hero);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.leaderBadge {
+  display: inline-block;
+  background: rgba(45,106,79,0.1);
+  color: var(--forest);
+  border-radius: 999px;
+  padding: 0.25rem 0.8rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.75rem;
+}
+
+.leaderBadgeVice {
+  background: rgba(212,160,23,0.12);
+  color: #7A5000;
+}
+
+.leaderName {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  color: var(--text-primary);
+  margin-bottom: 0.3rem;
+}
+
+.leaderTitle {
+  font-size: 0.85rem;
+  color: var(--forest);
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.leaderDesc {
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  line-height: 1.75;
+}
+
+/* Founder cards */
+.founderCards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.founderCard {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(212,160,23,0.12);
+  transition: transform 0.25s ease;
+}
+
+.founderCard:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-gold);
+}
+
+.founderAvatar {
+  width: 52px;
+  height: 52px;
+  background: var(--grad-gold);
+  color: var(--dark);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.founderName {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.founderRole {
+  font-size: 0.82rem;
+  color: var(--earth);
+  font-weight: 600;
+  margin-bottom: 0.85rem;
+}
+
+.founderDesc {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+/* Team note */
+.teamNote {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 2rem 2.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  border-left: 4px solid var(--sage);
+}
+
+.teamNoteIcon {
+  font-size: 2.5rem;
+  flex-shrink: 0;
+}
+
+.teamNote h4 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.teamNote p {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.75;
+}
+
+/* ── CTA SECTION ── */
+.ctaSection {
+  padding: 5rem 0;
+  background: var(--white);
+}
+
+.ctaCard {
+  background: var(--grad-hero);
+  border-radius: var(--radius-xl);
+  padding: 4rem 3rem;
+  text-align: center;
+  box-shadow: var(--shadow-green);
+  position: relative;
+  overflow: hidden;
+}
+
+.ctaCard::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 70% 30%, rgba(212,160,23,0.15) 0%, transparent 60%);
+}
+
+.ctaLeaves {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  letter-spacing: 0.25em;
+}
+
+.ctaTitle {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  color: white;
+  margin-bottom: 1.25rem;
+  position: relative;
+}
+
+.ctaDesc {
+  font-size: 1.05rem;
+  color: rgba(255,255,255,0.85);
+  max-width: 560px;
+  margin: 0 auto 2.5rem;
+  line-height: 1.75;
+  position: relative;
+}
+
+.ctaActions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  position: relative;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1024px) {
+  .partnerGrid { grid-template-columns: repeat(2, 1fr); }
+  .whyGrid { grid-template-columns: repeat(2, 1fr); }
+  .twoCol { grid-template-columns: 1fr; }
+  .templeCard { position: static; }
+  .regHighlight { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  .hero { padding: 7rem 0 4rem; }
+  .heroStats { flex-direction: column; gap: 1rem; padding: 1.5rem; }
+  .heroStatDivider { width: 60px; height: 1px; }
+  .leaderCards { grid-template-columns: 1fr; }
+  .founderCards { grid-template-columns: 1fr; }
+  .certsGrid { grid-template-columns: 1fr; }
+  .teamNote { flex-direction: column; gap: 1rem; }
+  .ctaCard { padding: 3rem 1.5rem; }
+  .leadershipHeader { flex-direction: column; align-items: flex-start; }
+}
+
+@media (max-width: 480px) {
+  .partnerGrid { grid-template-columns: 1fr; }
+  .whyGrid { grid-template-columns: 1fr; }
+  .ctaActions { flex-direction: column; }
+  .certImageWrap { min-height: 260px; }
+}
