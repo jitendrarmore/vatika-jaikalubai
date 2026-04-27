@@ -81,9 +81,20 @@ export default function AboutPage() {
             </div>
             <div className={styles.originVisual}>
               <div className={styles.templeCard}>
-                <div className={styles.templeEmoji}>🕌</div>
-                <h3>Shree Mandhardevi Kalubai Devsthan</h3>
-                <p>Satara, Maharashtra</p>
+                <div className={styles.templeImageWrap}>
+                  <img
+                    src="/aai-kalubai.jpg"
+                    alt="Aai Kalubai — Shree Mandhardevi Kalubai Devsthan, Satara"
+                    className={styles.templeImage}
+                  />
+                  <div className={styles.templeImageGlow} />
+                </div>
+                <div className={styles.templeCaption}>
+                  <div className={styles.templeCaptionDivider} />
+                  <h3>आई कलुबाई</h3>
+                  <p>Shree Mandhardevi Kalubai Devsthan</p>
+                  <span>Satara, Maharashtra</span>
+                </div>
                 <div className={styles.templeDetails}>
                   <div className={styles.templeDetail}><span>📍</span> Mandhardevi, Satara District</div>
                   <div className={styles.templeDetail}><span>🙏</span> Goddess Kalubai — Protector of Nature</div>

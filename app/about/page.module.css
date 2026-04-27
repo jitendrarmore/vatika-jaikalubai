@@ -192,52 +192,97 @@
   padding-left: 0.5rem;
 }
 
-/* Temple card */
+/* Temple card — deity photo */
 .templeCard {
-  background: var(--grad-hero);
+  background: var(--forest-dark);
   border-radius: var(--radius-xl);
-  padding: 2.5rem;
-  text-align: center;
-  color: white;
+  overflow: hidden;
   position: sticky;
   top: 6rem;
-  box-shadow: var(--shadow-green);
+  box-shadow: 0 0 0 4px var(--gold), var(--shadow-xl);
+  animation: float 5s ease-in-out infinite;
 }
 
-.templeEmoji {
-  font-size: 4rem;
-  margin-bottom: 1rem;
+.templeImageWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
 }
 
-.templeCard h3 {
+.templeImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+  transition: transform 6s ease;
+}
+
+.templeCard:hover .templeImage {
+  transform: scale(1.04);
+}
+
+.templeImageGlow {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 55%,
+    rgba(27, 67, 50, 0.85) 100%
+  );
+  pointer-events: none;
+}
+
+.templeCaption {
+  padding: 1.25rem 1.5rem 0.5rem;
+  text-align: center;
+}
+
+.templeCaptionDivider {
+  width: 48px;
+  height: 3px;
+  background: var(--gold);
+  border-radius: 999px;
+  margin: 0 auto 0.85rem;
+}
+
+.templeCaption h3 {
   font-family: 'Playfair Display', serif;
-  font-size: 1.3rem;
+  font-size: 1.5rem;
   color: white;
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.2rem;
 }
 
-.templeCard > p {
-  font-size: 0.9rem;
-  color: rgba(255,255,255,0.7);
-  margin-bottom: 1.75rem;
+.templeCaption p {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.75);
+  margin-bottom: 0.15rem;
+}
+
+.templeCaption span {
+  font-size: 0.78rem;
+  color: var(--gold-light);
+  font-weight: 600;
+  letter-spacing: 0.05em;
 }
 
 .templeDetails {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  text-align: left;
+  gap: 0.6rem;
+  padding: 1rem 1.25rem 1.5rem;
 }
 
 .templeDetail {
   display: flex;
   align-items: flex-start;
   gap: 0.5rem;
-  font-size: 0.9rem;
-  color: rgba(255,255,255,0.85);
-  background: rgba(255,255,255,0.1);
+  font-size: 0.875rem;
+  color: rgba(255,255,255,0.82);
+  background: rgba(255,255,255,0.08);
   border-radius: var(--radius-md);
-  padding: 0.65rem 0.85rem;
+  padding: 0.55rem 0.85rem;
 }
 
 /* ── PARTNER SECTION ── */
