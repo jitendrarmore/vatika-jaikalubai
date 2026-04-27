@@ -8,7 +8,11 @@ export async function POST(req: NextRequest) {
     const keySecret = process.env.RAZORPAY_KEY_SECRET;
 
     if (!keyId || !keySecret) {
-      console.error('[create-order] Missing Razorpay env vars');
+      console.error('[create-order] Missing Razorpay env vars!', {
+        hasKeyId: !!keyId,
+        hasKeySecret: !!keySecret,
+        razorpayKeysFound: Object.keys(process.env).filter(k => k.toLowerCase().includes('razorpay'))
+      });
       return NextResponse.json(
         { error: 'Payment service not configured. Please contact support.' },
         { status: 500 }
