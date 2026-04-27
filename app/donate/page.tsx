@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
-import Script from 'next/script';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import { mockPlants, occasions, generateTrackingId } from '@/lib/mockData';
@@ -11,6 +10,20 @@ import { Check, ArrowLeft, ArrowRight, Calendar, CreditCard, TreePine, Eye, EyeO
 import { QRCodeSVG } from 'qrcode.react';
 import Link from 'next/link';
 import styles from './page.module.css';
+
+/** Dynamically loads checkout.js and resolves when window.Razorpay is ready */
+function loadRazorpay(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    // Already loaded
+    if ((window as any).Razorpay) { resolve(); return; }
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.async = true;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error('Failed to load Razorpay. Check your internet connection.'));
+    document.head.appendChild(script);
+  });
+}
 
 interface WizardState {
   occasion: string;
@@ -118,6 +131,9 @@ function DonateWizard() {
     setPaymentStep('processing');
 
     try {
+      // STEP 0: Ensure checkout.js is loaded
+      await loadRazorpay();
+
       // STEP 1: Create server-side Razorpay order
       const amountPaise = state.plant.cost * 100; // ₹ → paise
       const orderRes = await fetch('/api/create-order', {
@@ -236,13 +252,7 @@ function DonateWizard() {
   const displayEmail = user?.email || state.guestEmail;
 
   return (
-    <>
-      {/* Load Razorpay checkout script */}
-      <Script
-        src="https://checkout.razorpay.com/v1/checkout.js"
-        strategy="lazyOnload"
-      />
-      <div className={styles.page}>
+    <div className={styles.page}>
       {/* Header */}
       <div className={styles.header}>
         <div className="container">
@@ -789,8 +799,7 @@ function DonateWizard() {
 
         </div>
       </div>
-      </div>
-    </>
+    </div>
   );
 }
 
