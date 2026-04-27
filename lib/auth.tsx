@@ -26,6 +26,7 @@ interface AuthContextType {
   signInWithGoogle: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (email: string, password: string, name: string) => Promise<void>;
+  signUpGuest: (email: string, password: string, name: string, mobile: string) => Promise<User>;
   signOut: () => Promise<void>;
   isAdmin: boolean;
   isMaintainer: boolean;
@@ -70,7 +71,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await signInWithPopup(getAuthInstance(), provider);
   };
 
-
   const signInWithEmail = async (email: string, password: string) => {
     await signInWithEmailAndPassword(getAuthInstance(), email, password);
   };
@@ -80,13 +80,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await updateProfile(newUser, { displayName: name });
   };
 
+  /**
+   * Creates a Firebase account for a guest who just donated.
+   * Saves mobile number to their Firestore profile so it's linked from day one.
+   * Returns the new User so the caller can immediately attach the donation to their UID.
+   */
+  const signUpGuest = async (
+    email: string,
+    password: string,
+    name: string,
+    mobile: string
+  ): Promise<User> => {
+    const { user: newUser } = await createUserWithEmailAndPassword(getAuthInstance(), email, password);
+    await updateProfile(newUser, { displayName: name });
+    // Persist mobile alongside profile — this also creates the Firestore users doc
+    await syncUserToFirestore(newUser.uid, email, name, undefined, mobile);
+    return newUser;
+  };
+
   const signOut = async () => {
     await firebaseSignOut(getAuthInstance());
   };
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, signInWithGoogle, signInWithEmail, signUpWithEmail, signOut, isAdmin, isMaintainer }}
+      value={{ user, loading, signInWithGoogle, signInWithEmail, signUpWithEmail, signUpGuest, signOut, isAdmin, isMaintainer }}
     >
       {children}
     </AuthContext.Provider>

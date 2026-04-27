@@ -6,8 +6,9 @@ import { useAuth } from '@/lib/auth';
 import { mockPlants, occasions, generateTrackingId } from '@/lib/mockData';
 import { createDonation } from '@/lib/firebase/donations';
 import type { Plant } from '@/lib/firebase/plants';
-import { Check, ArrowLeft, ArrowRight, Calendar, MapPin, User, CreditCard, TreePine } from 'lucide-react';
+import { Check, ArrowLeft, ArrowRight, Calendar, CreditCard, TreePine, Eye, EyeOff, Smartphone, User, Mail, Lock, Leaf } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
+import Link from 'next/link';
 import styles from './page.module.css';
 
 interface WizardState {
@@ -17,14 +18,30 @@ interface WizardState {
   treeName: string;
   dedication: string;
   trackingId: string;
+  // Guest account fields
+  guestName: string;
+  guestEmail: string;
+  guestPassword: string;
+  guestMobile: string;
 }
 
 function DonateWizard() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, signUpGuest } = useAuth();
+
+  // For logged-in users: 5 steps (skip account step). For guests: 6 steps.
+  const isGuest = !user;
+  const totalSteps = isGuest ? 6 : 5;
+
+  // Map wizard step → label step (for progress bar, which always shows 5 dots)
+  // Guests:  1=Occasion 2=Tree 3=Date 4=Name 5=Account 6=Payment → Success
+  // Members: 1=Occasion 2=Tree 3=Date 4=Name 5=Payment → Success
+
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [accountError, setAccountError] = useState('');
+  const [showPw, setShowPw] = useState(false);
   const [state, setState] = useState<WizardState>({
     occasion: searchParams.get('occasion') || '',
     plant: mockPlants.find(p => p.id === searchParams.get('plant')) || null,
@@ -32,17 +49,66 @@ function DonateWizard() {
     treeName: '',
     dedication: '',
     trackingId: '',
+    guestName: '',
+    guestEmail: '',
+    guestPassword: '',
+    guestMobile: '',
   });
   const [paymentStep, setPaymentStep] = useState<'summary' | 'processing' | 'done'>('summary');
 
-  const totalSteps = 6;
+  // Re-evaluate guest state if user signs in mid-flow
+  useEffect(() => {
+    if (user && isGuest) {
+      // User just signed in (e.g. via step 5), advance past account step automatically
+    }
+  }, [user, isGuest]);
 
   const updateState = (updates: Partial<WizardState>) => {
     setState(prev => ({ ...prev, ...updates }));
   };
 
-  const next = () => setStep(s => Math.min(s + 1, totalSteps));
+  const next = () => setStep(s => Math.min(s + 1, totalSteps + 1));
   const prev = () => setStep(s => Math.max(s - 1, 1));
+
+  // Step numbers with guest awareness
+  // Guest steps: 1 Occasion | 2 Tree | 3 Date | 4 Name | 5 Account | 6 Payment | 7 Success
+  // Auth  steps: 1 Occasion | 2 Tree | 3 Date | 4 Name |            5 Payment | 6 Success
+  const STEP_PAYMENT = isGuest ? 6 : 5;
+  const STEP_SUCCESS = isGuest ? 7 : 6;
+  const STEP_ACCOUNT = 5; // only relevant for guests
+
+  // Progress bar shows 5 dots always (occasion/tree/date/name+account/payment)
+  const progressStep = isGuest
+    ? (step <= 4 ? step : step === 5 ? 4 : step === 6 ? 5 : 5)
+    : step;
+
+  const handleGuestAccount = async () => {
+    setAccountError('');
+    setLoading(true);
+    try {
+      await signUpGuest(
+        state.guestEmail,
+        state.guestPassword,
+        state.guestName,
+        state.guestMobile
+      );
+      // Firebase onAuthStateChanged will update `user`, but we can proceed immediately
+      next();
+    } catch (e: unknown) {
+      const msg = (e as Error).message || '';
+      if (msg.includes('email-already-in-use')) {
+        setAccountError('An account with this email already exists. Please sign in first.');
+      } else if (msg.includes('weak-password')) {
+        setAccountError('Password must be at least 6 characters.');
+      } else if (msg.includes('invalid-email')) {
+        setAccountError('Please enter a valid email address.');
+      } else {
+        setAccountError(msg || 'Failed to create account. Please try again.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handlePayment = async () => {
     setPaymentStep('processing');
@@ -51,12 +117,15 @@ function DonateWizard() {
     const trackingId = generateTrackingId();
     updateState({ trackingId });
 
-    if (user && state.plant) {
+    // At this point, `user` is either the pre-existing user or the newly created guest account
+    const currentUser = user;
+    if (currentUser && state.plant) {
       try {
         await createDonation({
-          uid: user.uid,
-          userEmail: user.email || '',
-          userName: user.displayName || 'Anonymous',
+          uid: currentUser.uid,
+          userEmail: currentUser.email || state.guestEmail,
+          userName: currentUser.displayName || state.guestName || 'Anonymous',
+          mobile: state.guestMobile || undefined,
           plantId: state.plant.id || '',
           plantName: state.plant.name,
           occasion: state.occasion,
@@ -74,8 +143,10 @@ function DonateWizard() {
     }
 
     setPaymentStep('done');
-    setStep(6);
+    setStep(STEP_SUCCESS);
   };
+
+  const displayEmail = user?.email || state.guestEmail;
 
   return (
     <div className={styles.page}>
@@ -85,15 +156,15 @@ function DonateWizard() {
           <h1 className={styles.pageTitle}>Donate a Tree 🌱</h1>
           <p className={styles.pageSubtitle}>Plant a living tribute with Aai Kalubai&apos;s blessing</p>
 
-          {/* Progress bar */}
-          {step < 6 && (
+          {/* Progress bar — always 5 dots */}
+          {step < STEP_SUCCESS && (
             <div className={styles.progress}>
               {[1, 2, 3, 4, 5].map((s) => (
                 <div key={s} className={styles.progressItem}>
-                  <div className={`${styles.progressDot} ${step > s ? styles.done : ''} ${step === s ? styles.active : ''}`}>
-                    {step > s ? <Check size={14} /> : s}
+                  <div className={`${styles.progressDot} ${progressStep > s ? styles.done : ''} ${progressStep === s ? styles.active : ''}`}>
+                    {progressStep > s ? <Check size={14} /> : s}
                   </div>
-                  {s < 5 && <div className={`${styles.progressLine} ${step > s ? styles.lineDone : ''}`} />}
+                  {s < 5 && <div className={`${styles.progressLine} ${progressStep > s ? styles.lineDone : ''}`} />}
                 </div>
               ))}
             </div>
@@ -103,6 +174,7 @@ function DonateWizard() {
 
       <div className="container">
         <div className={styles.wizardContainer}>
+
           {/* === STEP 1: OCCASION === */}
           {step === 1 && (
             <div className={styles.step}>
@@ -287,17 +359,168 @@ function DonateWizard() {
               <div className={styles.stepActions}>
                 <button className="btn btn-secondary" onClick={prev}><ArrowLeft size={18} /> Back</button>
                 <button className="btn btn-forest btn-lg" onClick={next} disabled={!state.treeName} id="step4-next">
-                  Continue to Payment <ArrowRight size={18} />
+                  {isGuest ? 'Continue' : 'Continue to Payment'} <ArrowRight size={18} />
                 </button>
               </div>
             </div>
           )}
 
-          {/* === STEP 5: PAYMENT === */}
-          {step === 5 && (
+          {/* === STEP 5: GUEST ACCOUNT (guests only) === */}
+          {step === STEP_ACCOUNT && isGuest && (
             <div className={styles.step}>
               <div className={styles.stepHeader}>
-                <h2 className={styles.stepTitle}>Confirm & Donate</h2>
+                <h2 className={styles.stepTitle}>Almost There! 🌱</h2>
+                <p className={styles.stepDesc}>
+                  Create a free account to track your tree and receive updates
+                </p>
+              </div>
+
+              <div className={styles.accountStep}>
+                <div className={styles.accountBadge}>
+                  <Leaf size={16} />
+                  Free account · No spam · Track your tree forever
+                </div>
+
+                <div className={styles.accountForm}>
+                  {/* Full Name */}
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="guest-name">
+                      <User size={15} style={{ display: 'inline', marginRight: '0.4rem' }} />
+                      Full Name <span style={{ color: 'red' }}>*</span>
+                    </label>
+                    <input
+                      id="guest-name"
+                      className="form-input"
+                      type="text"
+                      placeholder="Your full name"
+                      value={state.guestName}
+                      onChange={(e) => updateState({ guestName: e.target.value })}
+                      required
+                    />
+                  </div>
+
+                  {/* Email */}
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="guest-email">
+                      <Mail size={15} style={{ display: 'inline', marginRight: '0.4rem' }} />
+                      Email Address <span style={{ color: 'red' }}>*</span>
+                    </label>
+                    <input
+                      id="guest-email"
+                      className="form-input"
+                      type="email"
+                      placeholder="your@email.com"
+                      value={state.guestEmail}
+                      onChange={(e) => updateState({ guestEmail: e.target.value })}
+                      required
+                    />
+                  </div>
+
+                  {/* Password */}
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="guest-password">
+                      <Lock size={15} style={{ display: 'inline', marginRight: '0.4rem' }} />
+                      Password <span style={{ color: 'red' }}>*</span>
+                    </label>
+                    <div className={styles.passwordField}>
+                      <input
+                        id="guest-password"
+                        className="form-input"
+                        type={showPw ? 'text' : 'password'}
+                        placeholder="Min 6 characters"
+                        value={state.guestPassword}
+                        onChange={(e) => updateState({ guestPassword: e.target.value })}
+                        required
+                        minLength={6}
+                        style={{ paddingRight: '3rem' }}
+                      />
+                      <button
+                        type="button"
+                        className={styles.showPwBtn}
+                        onClick={() => setShowPw(!showPw)}
+                        tabIndex={-1}
+                        aria-label="Toggle password visibility"
+                      >
+                        {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Mobile */}
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="guest-mobile">
+                      <Smartphone size={15} style={{ display: 'inline', marginRight: '0.4rem' }} />
+                      Mobile Number <span style={{ color: 'red' }}>*</span>
+                    </label>
+                    <div className={styles.mobileField}>
+                      <span className={styles.mobilePrefix}>🇮🇳 +91</span>
+                      <input
+                        id="guest-mobile"
+                        className={`form-input ${styles.mobileInput}`}
+                        type="tel"
+                        placeholder="9876543210"
+                        value={state.guestMobile}
+                        onChange={(e) => {
+                          const v = e.target.value.replace(/\D/g, '').slice(0, 10);
+                          updateState({ guestMobile: v });
+                        }}
+                        pattern="[0-9]{10}"
+                        required
+                      />
+                    </div>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                      Used only for tree update notifications
+                    </span>
+                  </div>
+
+                  {/* Error */}
+                  {accountError && (
+                    <div className={styles.accountError}>
+                      <span>{accountError}</span>
+                      {accountError.includes('already exists') && (
+                        <Link href={`/login`} className={styles.accountErrorLink}>
+                          Sign in instead →
+                        </Link>
+                      )}
+                    </div>
+                  )}
+
+                  <div className={styles.accountNote}>
+                    🔒 Your details are securely stored. We&apos;ll send your tree tracking ID and plantation updates to your email and mobile.
+                  </div>
+                </div>
+
+                <div className={styles.accountDivider}>
+                  <span>Already have an account?</span>
+                  <Link href="/login" className={styles.accountSignInLink}>Sign in</Link>
+                </div>
+              </div>
+
+              <div className={styles.stepActions}>
+                <button className="btn btn-secondary" onClick={prev}><ArrowLeft size={18} /> Back</button>
+                <button
+                  className="btn btn-forest btn-lg"
+                  onClick={handleGuestAccount}
+                  disabled={
+                    loading ||
+                    !state.guestName ||
+                    !state.guestEmail ||
+                    state.guestPassword.length < 6 ||
+                    state.guestMobile.length !== 10
+                  }
+                  id="guest-account-next"
+                >
+                  {loading ? 'Creating account...' : 'Continue to Payment'} <ArrowRight size={18} />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* === PAYMENT STEP === */}
+          {step === STEP_PAYMENT && (
+            <div className={styles.step}>
+              <div className={styles.stepHeader}>
+                <h2 className={styles.stepTitle}>Confirm &amp; Donate</h2>
                 <p className={styles.stepDesc}>Review your tree donation and complete payment</p>
               </div>
 
@@ -329,6 +552,12 @@ function DonateWizard() {
                       <div className={styles.summaryRow}>
                         <span>🙏 Dedication</span>
                         <span className={styles.summaryValue}>{state.dedication}</span>
+                      </div>
+                    )}
+                    {(state.guestEmail || user?.email) && (
+                      <div className={styles.summaryRow}>
+                        <span>📧 Receipt to</span>
+                        <span className={styles.summaryValue}>{displayEmail}</span>
                       </div>
                     )}
                     <div className={styles.summaryDivider} />
@@ -378,8 +607,8 @@ function DonateWizard() {
             </div>
           )}
 
-          {/* === STEP 6: SUCCESS === */}
-          {step === 6 && (
+          {/* === SUCCESS === */}
+          {step === STEP_SUCCESS && (
             <div className={styles.successPage}>
               <div className={styles.successCard}>
                 <div className={styles.successIcon}>🙏</div>
@@ -418,7 +647,18 @@ function DonateWizard() {
                   <div className={styles.detailRow}>
                     <span>💰 Donated</span><span>₹{state.plant?.cost}</span>
                   </div>
+                  {(state.guestMobile) && (
+                    <div className={styles.detailRow}>
+                      <span>📱 Updates to</span><span>+91 {state.guestMobile}</span>
+                    </div>
+                  )}
                 </div>
+
+                {isGuest && (
+                  <div className={styles.successAccountNote}>
+                    🎉 Your account has been created! <Link href="/dashboard" className={styles.successDashboardLink}>Go to Dashboard</Link> to see your tree.
+                  </div>
+                )}
 
                 <div className={styles.successActions}>
                   <a
@@ -441,11 +681,12 @@ function DonateWizard() {
                 </div>
 
                 <p className={styles.successNote}>
-                  📧 A confirmation email has been sent to {user?.email || 'your email'}
+                  📧 A confirmation email has been sent to {displayEmail || 'your email'}
                 </p>
               </div>
             </div>
           )}
+
         </div>
       </div>
     </div>

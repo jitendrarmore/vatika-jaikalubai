@@ -17,6 +17,7 @@ export interface Donation {
   uid: string;
   userEmail: string;
   userName: string;
+  mobile?: string;
   plantId: string;
   plantName: string;
   occasion: string;

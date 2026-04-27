@@ -18,12 +18,19 @@ export interface UserProfile {
   uid: string;
   email: string;
   name: string;
+  mobile?: string;
   photoURL?: string;
   role: UserRole;
   createdAt: Timestamp;
 }
 
-export async function syncUserToFirestore(uid: string, email: string, name: string, photoURL?: string) {
+export async function syncUserToFirestore(
+  uid: string,
+  email: string,
+  name: string,
+  photoURL?: string,
+  mobile?: string
+) {
   const docRef = doc(getDbInstance(), 'users', uid);
   const snapshot = await getDoc(docRef);
 
@@ -35,6 +42,7 @@ export async function syncUserToFirestore(uid: string, email: string, name: stri
       uid,
       email,
       name,
+      ...(mobile ? { mobile } : {}),
       photoURL,
       role: isAdmin ? 'admin' : 'user',
       createdAt: Timestamp.now(),
@@ -43,10 +51,14 @@ export async function syncUserToFirestore(uid: string, email: string, name: stri
     return newUser;
   }
 
-  // Update name/photo if they changed
+  // Update name/photo/mobile if they changed
   const existing = snapshot.data() as UserProfile;
-  if (existing.name !== name || existing.photoURL !== photoURL) {
-    await updateDoc(docRef, { name, photoURL });
+  const updates: Partial<UserProfile> = {};
+  if (existing.name !== name) updates.name = name;
+  if (existing.photoURL !== photoURL) updates.photoURL = photoURL;
+  if (mobile && existing.mobile !== mobile) updates.mobile = mobile;
+  if (Object.keys(updates).length > 0) {
+    await updateDoc(docRef, updates);
   }
 
   return existing;

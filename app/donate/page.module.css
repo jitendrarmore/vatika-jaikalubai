@@ -590,11 +590,173 @@
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* === STEP 5: GUEST ACCOUNT === */
+.accountStep {
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.accountBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(45, 106, 79, 0.1);
+  color: var(--forest);
+  border: 1px solid rgba(45, 106, 79, 0.25);
+  border-radius: 999px;
+  padding: 0.4rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 1.75rem;
+}
+
+.accountForm {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.accountForm .form-group {
+  margin-bottom: 0;
+}
+
+/* Password field toggle */
+.passwordField {
+  position: relative;
+}
+
+.showPwBtn {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  padding: 0;
+}
+
+/* Mobile number with prefix */
+.mobileField {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border: 1.5px solid #D1D5DB;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.mobileField:focus-within {
+  border-color: var(--forest);
+  box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.12);
+}
+
+.mobilePrefix {
+  padding: 0 1rem;
+  background: rgba(45, 106, 79, 0.06);
+  border-right: 1.5px solid #D1D5DB;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+.mobileInput {
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  flex: 1;
+}
+
+.mobileInput:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Error box */
+.accountError {
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1rem;
+  font-size: 0.875rem;
+  color: #DC2626;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.accountErrorLink {
+  color: var(--forest);
+  font-weight: 600;
+  text-decoration: underline;
+  font-size: 0.85rem;
+}
+
+/* Reassurance note */
+.accountNote {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  background: var(--cream);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+}
+
+/* Already have account row */
+.accountDivider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.accountSignInLink {
+  color: var(--forest);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+/* Success screen extras */
+.successAccountNote {
+  background: rgba(45, 106, 79, 0.08);
+  border: 1px solid rgba(45, 106, 79, 0.2);
+  border-radius: var(--radius-md);
+  padding: 0.9rem 1.25rem;
+  font-size: 0.9rem;
+  color: var(--forest);
+  font-weight: 500;
+  margin: 0 auto 1.5rem;
+  max-width: 480px;
+}
+
+.successDashboardLink {
+  color: var(--forest);
+  font-weight: 700;
+  text-decoration: underline;
+}
+
 /* Responsive */
 @media (max-width: 700px) {
   .occasionGrid { grid-template-columns: repeat(3, 1fr); }
   .wizardContainer { padding: 1.5rem 0 3rem; }
   .successCard { padding: 2rem 1.25rem; }
+  .accountForm { padding: 1.5rem; }
 }
 
 @media (max-width: 480px) {
@@ -602,4 +764,6 @@
   .plantCard { flex-direction: column; }
   .stepActions { flex-direction: column-reverse; gap: 0.75rem; }
   .stepActions .btn { width: 100%; justify-content: center; }
+  .mobilePrefix { min-height: 40px; font-size: 0.82rem; }
 }
+
