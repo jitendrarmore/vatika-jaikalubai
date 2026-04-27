@@ -147,8 +147,11 @@ function DonateWizard() {
       });
 
       if (!orderRes.ok) {
-        const err = await orderRes.json();
-        throw new Error(err.error || 'Failed to create payment order');
+        // Safely read body — it may not be JSON if the server errored unexpectedly
+        const text = await orderRes.text();
+        let errMsg = 'Failed to create payment order';
+        try { errMsg = JSON.parse(text).error || errMsg; } catch { /* not JSON */ }
+        throw new Error(errMsg);
       }
 
       const { order_id, amount, currency } = await orderRes.json();

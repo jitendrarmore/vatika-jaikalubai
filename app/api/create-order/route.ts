@@ -2,13 +2,21 @@ import { NextRequest, NextResponse } from 'next/server';
 import Razorpay from 'razorpay';
 
 export async function POST(req: NextRequest) {
-  // Instantiate inside handler — env vars are only available at request time, not build time
-  const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID!,
-    key_secret: process.env.RAZORPAY_KEY_SECRET!,
-  });
-
   try {
+    // Init inside try — if env vars missing, error is caught and returned as JSON
+    const keyId = process.env.RAZORPAY_KEY_ID;
+    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+
+    if (!keyId || !keySecret) {
+      console.error('[create-order] Missing Razorpay env vars');
+      return NextResponse.json(
+        { error: 'Payment service not configured. Please contact support.' },
+        { status: 500 }
+      );
+    }
+
+    const razorpay = new Razorpay({ key_id: keyId, key_secret: keySecret });
+
     const body = await req.json();
     const { amount, currency = 'INR', receipt } = body;
 
@@ -21,12 +29,10 @@ export async function POST(req: NextRequest) {
     }
 
     const order = await razorpay.orders.create({
-      amount,          // in paise
+      amount,
       currency,
       receipt: receipt || `vatika_${Date.now()}`,
-      notes: {
-        platform: 'vatika-jaikalubai',
-      },
+      notes: { platform: 'vatika-jaikalubai' },
     });
 
     return NextResponse.json({
@@ -38,7 +44,7 @@ export async function POST(req: NextRequest) {
     console.error('[create-order] Error:', err);
     const status = err?.statusCode === 401 ? 401 : 500;
     return NextResponse.json(
-      { error: err?.error?.description || 'Failed to create order' },
+      { error: err?.error?.description || err?.message || 'Failed to create order' },
       { status }
     );
   }
