@@ -67,7 +67,11 @@ export default function Footer() {
               <ul className={styles.contact}>
                 <li>
                   <MapPin size={16} />
-                  <span>Kolhapur, Maharashtra, India</span>
+                  <span>
+                    At Kude Kh., Post Kude Budruk,<br />
+                    Tal. Khed, Dist. Pune,<br />
+                    Maharashtra, India
+                  </span>
                 </li>
                 <li>
                   <Mail size={16} />
@@ -75,12 +79,12 @@ export default function Footer() {
                 </li>
                 <li>
                   <Phone size={16} />
-                  <a href="tel:+919876543210">+91 98765 43210</a>
+                  <a href="tel:+919833550438">+91 98335 50438</a>
                 </li>
               </ul>
               <div className={styles.whatsapp}>
                 <a
-                  href="https://wa.me/919876543210?text=Hi%20Vatika%2C%20I%20want%20to%20plant%20a%20tree!"
+                  href="https://wa.me/919833550438?text=Hi%20Vatika%2C%20I%20want%20to%20plant%20a%20tree!"
                   target="_blank"
                   rel="noreferrer"
                   className="btn btn-sm"
