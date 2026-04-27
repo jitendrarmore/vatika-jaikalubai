@@ -29,6 +29,8 @@ export interface Donation {
   location?: { lat: number; lng: number; address: string };
   cost: number;
   maintainerEmail?: string;
+  paymentId?: string;   // Razorpay payment_id (razorpay_payment_id)
+  orderId?: string;     // Razorpay order_id
   createdAt: Timestamp;
 }
 

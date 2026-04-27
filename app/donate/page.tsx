@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
+import Script from 'next/script';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import { mockPlants, occasions, generateTrackingId } from '@/lib/mockData';
@@ -41,6 +42,7 @@ function DonateWizard() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [accountError, setAccountError] = useState('');
+  const [paymentError, setPaymentError] = useState('');
   const [showPw, setShowPw] = useState(false);
   const [state, setState] = useState<WizardState>({
     occasion: searchParams.get('occasion') || '',
@@ -111,45 +113,136 @@ function DonateWizard() {
   };
 
   const handlePayment = async () => {
+    if (!state.plant) return;
+    setPaymentError('');
     setPaymentStep('processing');
-    await new Promise(r => setTimeout(r, 2500));
 
-    const trackingId = generateTrackingId();
-    updateState({ trackingId });
+    try {
+      // STEP 1: Create server-side Razorpay order
+      const amountPaise = state.plant.cost * 100; // ₹ → paise
+      const orderRes = await fetch('/api/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: amountPaise,
+          currency: 'INR',
+          receipt: `vatika_${Date.now()}`,
+        }),
+      });
 
-    // At this point, `user` is either the pre-existing user or the newly created guest account
-    const currentUser = user;
-    if (currentUser && state.plant) {
-      try {
-        await createDonation({
-          uid: currentUser.uid,
-          userEmail: currentUser.email || state.guestEmail,
-          userName: currentUser.displayName || state.guestName || 'Anonymous',
-          mobile: state.guestMobile || undefined,
-          plantId: state.plant.id || '',
-          plantName: state.plant.name,
-          occasion: state.occasion,
-          treeName: state.treeName,
-          dedication: state.dedication,
-          plantationDate: state.date,
-          trackingId,
-          status: 'scheduled',
-          cost: state.plant.cost,
-          location: { lat: 16.7048, lng: 74.2433, address: 'Kolhapur, Maharashtra' },
-        });
-      } catch (e) {
-        console.error('Failed to save donation', e);
+      if (!orderRes.ok) {
+        const err = await orderRes.json();
+        throw new Error(err.error || 'Failed to create payment order');
       }
-    }
 
-    setPaymentStep('done');
-    setStep(STEP_SUCCESS);
+      const { order_id, amount, currency } = await orderRes.json();
+
+      // STEP 2: Open Razorpay Standard Checkout modal
+      const currentUser = user;
+      const trackingId = generateTrackingId();
+      updateState({ trackingId });
+
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        amount,
+        currency,
+        name: 'Vatika – Jai Kalubai',
+        description: `Tree Donation: ${state.plant.name} (${state.occasion})`,
+        image: '/aai-kalubai.jpg',
+        order_id,
+        prefill: {
+          name: currentUser?.displayName || state.guestName || '',
+          email: currentUser?.email || state.guestEmail || '',
+          contact: state.guestMobile ? `+91${state.guestMobile}` : '',
+        },
+        notes: {
+          tree_name: state.treeName,
+          occasion: state.occasion,
+          tracking_id: trackingId,
+          dedication: state.dedication,
+        },
+        theme: { color: '#2D6A4F' },
+        modal: {
+          ondismiss: () => {
+            // User closed modal without paying
+            setPaymentStep('summary');
+            setPaymentError('Payment was cancelled. Please try again.');
+          },
+        },
+        handler: async (response: {
+          razorpay_payment_id: string;
+          razorpay_order_id: string;
+          razorpay_signature: string;
+        }) => {
+          try {
+            // STEP 3: Verify signature server-side
+            const verifyRes = await fetch('/api/verify-payment', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(response),
+            });
+
+            if (!verifyRes.ok) {
+              throw new Error('Payment verification failed. Please contact support.');
+            }
+
+            // STEP 4: Save donation to Firestore (only after verified!)
+            if (currentUser && state.plant) {
+              await createDonation({
+                uid: currentUser.uid,
+                userEmail: currentUser.email || state.guestEmail,
+                userName: currentUser.displayName || state.guestName || 'Anonymous',
+                mobile: state.guestMobile || undefined,
+                plantId: state.plant.id || '',
+                plantName: state.plant.name,
+                occasion: state.occasion,
+                treeName: state.treeName,
+                dedication: state.dedication,
+                plantationDate: state.date,
+                trackingId,
+                status: 'scheduled',
+                cost: state.plant.cost,
+                paymentId: response.razorpay_payment_id,
+                orderId: response.razorpay_order_id,
+                location: { lat: 18.5204, lng: 73.8567, address: 'Kude Budruk, Pune, Maharashtra' },
+              });
+            }
+
+            setPaymentStep('done');
+            setStep(STEP_SUCCESS);
+          } catch (e: any) {
+            console.error('Post-payment error:', e);
+            setPaymentError(e.message || 'Verification error. Please contact support.');
+            setPaymentStep('summary');
+          }
+        },
+      };
+
+      // Open the Razorpay modal
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const rzp = new (window as any).Razorpay(options);
+      rzp.on('payment.failed', (resp: any) => {
+        setPaymentError(`Payment failed: ${resp.error.description}`);
+        setPaymentStep('summary');
+      });
+      rzp.open();
+    } catch (e: any) {
+      console.error('[handlePayment]', e);
+      setPaymentError(e.message || 'Something went wrong. Please try again.');
+      setPaymentStep('summary');
+    }
   };
 
   const displayEmail = user?.email || state.guestEmail;
 
   return (
-    <div className={styles.page}>
+    <>
+      {/* Load Razorpay checkout script */}
+      <Script
+        src="https://checkout.razorpay.com/v1/checkout.js"
+        strategy="lazyOnload"
+      />
+      <div className={styles.page}>
       {/* Header */}
       <div className={styles.header}>
         <div className="container">
@@ -579,6 +672,13 @@ function DonateWizard() {
                     </p>
                   </div>
 
+                  {/* Payment error */}
+                  {paymentError && (
+                    <div className={styles.accountError} style={{ marginBottom: '1rem' }}>
+                      ⚠️ {paymentError}
+                    </div>
+                  )}
+
                   <div className={styles.stepActions}>
                     <button className="btn btn-secondary" onClick={prev}><ArrowLeft size={18} /> Back</button>
                     <button
@@ -689,7 +789,8 @@ function DonateWizard() {
 
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
 
